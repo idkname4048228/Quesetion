@@ -27,12 +27,19 @@ enum class Choise
 int main()
 {
     char answer;
-    cout << "Initial ?(y/n)'\t";
+    cout << "Should the file be initialized ( Y or N)\t";
     cin >> answer;
     fstream inOutFile;
-    inOutFile.open("shop_list.dat", ios::trunc | ios::in | ios::out | ios::binary);
+    if (answer == 'y' || answer == 'Y')
+    {
+        inOutFile.open("shop_list.dat", ios::trunc | ios::in | ios::out | ios::binary);
+        initial(inOutFile);
+    }
+    else
+    {
+        inOutFile.open("shop_list.dat", ios::in | ios::out | ios::binary);
+    }
 
-    initial(inOutFile);
     listAllData(inOutFile);
     inOutFile.close();
 }
@@ -55,7 +62,6 @@ void initial(fstream &file)
     for (int i = 0; i < 100; i++)
     {
         Tool data{i, "", 0, 0};
-        print(data);
         file.seekp(i * sizeof(Tool));
         file.write(
             reinterpret_cast<const char *>(&data), sizeof(Tool));
