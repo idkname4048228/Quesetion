@@ -6,16 +6,7 @@
 
 using namespace std;
 
-void initial(fstream &file);
-void selectChoice();
-void listAllData(fstream &file);
-void updataData(fstream &file);
-void insertData(fstream &file);
-void deleteData(fstream &file);
-void print(Tool &data);
-void printTitle();
-
-enum class Choise
+enum class Choice
 {
     LIST = 1,
     UPDATE,
@@ -24,10 +15,19 @@ enum class Choise
     QUIT
 };
 
+void initial(fstream &file);
+Choice selectChoice();
+void listAllData(fstream &file);
+void updataData(fstream &file);
+void insertData(fstream &file);
+void deleteData(fstream &file);
+void print(Tool &data);
+void printTitle();
+
 int main()
 {
     char answer;
-    cout << "Should the file be initialized ( Y or N)\t";
+    cout << "Should the file be initialized (Y or N)\t";
     cin >> answer;
     fstream inOutFile;
     if (answer == 'y' || answer == 'Y')
@@ -40,11 +40,34 @@ int main()
         inOutFile.open("shop_list.dat", ios::in | ios::out | ios::binary);
     }
 
-    listAllData(inOutFile);
-    inOutFile.close();
+    Choice choice;
+
+    while ((choice = selectChoice()) != Choice::QUIT)
+    {
+        switch (choice)
+        {
+        case Choice::LIST:
+            listAllData(inOutFile);
+            break;
+        case Choice::UPDATE:
+            updataData(inOutFile);
+            break;
+        case Choice::INSERT:
+            insertData(inOutFile);
+            break;
+        case Choice::DELETE:
+            deleteData(inOutFile);
+            break;
+        default:
+            cerr << "Incorrect choice" << endl;
+            break;
+        }
+
+        inOutFile.clear();
+    }
 }
 
-void selectChoice()
+Choice selectChoice()
 {
     cout << "Enter a choice:" << endl
          << "1  List all tools." << endl
@@ -55,6 +78,7 @@ void selectChoice()
          << "? ";
     int choice{0};
     cin >> choice;
+    return static_cast<Choice>(choice);
 }
 
 void initial(fstream &file)
@@ -101,21 +125,25 @@ void listAllData(fstream &file)
         file.seekg(i * sizeof(Tool));
         file.read(
             reinterpret_cast<char *>(&data), sizeof(Tool));
-        print(data);
+        if (data.getName() != "")
+        {
+            print(data);
+        }
+
         i += 1;
     }
 }
 
 void printTitle()
 {
-    cout << left << setw(11) << "Recode#" << setw(30) << "Tool Name" << setw(13) << "Quantity" << setprecision(2)
+    cout << left << setw(11) << "Record#" << setw(30) << "Tool Name" << setw(13) << "Quantity" << setprecision(2)
          << showpoint << "Cost" << endl;
 }
 
 void print(Tool &data)
 {
 
-    cout << left << setw(11) << data.getRecode() << setw(30) << data.getName() << setw(13) << data.getQuantity() << setprecision(3)
+    cout << left << setw(11) << data.getRecode() << setw(30) << data.getName() << setw(13) << data.getQuantity() << fixed << setprecision(2)
          << showpoint << data.getPrice() << endl;
 }
 
@@ -144,8 +172,13 @@ void insertData(fstream &file)
     int place{0}, quantity{0};
     float price{0};
     string name;
-    cout << "Input recode, name, quantity and price of insert tool :";
-    cin >> place >> name >> quantity >> price;
+    cout << "Enter the part number (0 - 99, -1 to the end input): ";
+    cin >> place;
+    cout << "Enter the tool name: ";
+    getchar();
+    getline(cin, name);
+    cout << "Enter quantity and price: ";
+    cin >> quantity >> price;
 
     Tool insertData{place, name, quantity, price};
     file.seekp(place * sizeof(Tool));
