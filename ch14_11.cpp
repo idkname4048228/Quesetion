@@ -30,14 +30,7 @@ int main()
     cout << "Initial ?(y/n)'\t";
     cin >> answer;
     fstream inOutFile;
-    if (answer == 'y')
-    {
-        fstream inOutFile{"shop_list.dat", ios::trunc | ios::in | ios::out | ios::binary};
-    }
-    else
-    {
-        fstream inOutFile{"shop_list.dat", ios::in | ios::out | ios::binary};
-    }
+    inOutFile.open("shop_list.dat", ios::trunc | ios::in | ios::out | ios::binary);
 
     initial(inOutFile);
     listAllData(inOutFile);
@@ -83,7 +76,6 @@ void initial(fstream &file)
         cin >> quantity >> price;
 
         Tool data{place, name, quantity, price};
-
         file.seekp(place * sizeof(Tool));
         file.write(
             reinterpret_cast<const char *>(&data), sizeof(Tool));
@@ -96,13 +88,15 @@ void initial(fstream &file)
 void listAllData(fstream &file)
 {
     printTitle();
-    for (int i = 0; i < 100; i++)
+    int i{0};
+    while (!file.eof())
     {
         Tool data;
         file.seekg(i * sizeof(Tool));
         file.read(
             reinterpret_cast<char *>(&data), sizeof(Tool));
         print(data);
+        i += 1;
     }
 }
 
