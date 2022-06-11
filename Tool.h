@@ -10,20 +10,20 @@ public:
     Tool(int, const std::string, int, float);
 
     void setRecode(int);
-    int getRecode();
+    int getRecode() const;
 
     void setName(std::string);
-    std::string getName();
+    std::string getName() const;
 
     void setQuqntity(int);
-    int getQuantity();
+    int getQuantity() const;
 
     void setPrice(float);
-    float getPrice();
+    float getPrice() const;
 
 private:
     int recode;
-    std::string name;
+    char name[30];
     int quantity;
     float price;
 };

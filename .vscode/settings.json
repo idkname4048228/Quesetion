@@ -1,5 +1,7 @@
 {
-    "files.associations": {
-        "iosfwd": "cpp"
-    }
+  "files.associations": {
+    "iosfwd": "cpp",
+    "typeinfo": "cpp",
+    "*.tcc": "cpp"
+  }
 }

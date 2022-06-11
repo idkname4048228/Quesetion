@@ -21,7 +21,7 @@ void listAllData(fstream &file);
 void updataData(fstream &file);
 void insertData(fstream &file);
 void deleteData(fstream &file);
-void print(Tool &data);
+void print(const Tool &data);
 void printTitle();
 
 int main()
@@ -38,6 +38,12 @@ int main()
     else
     {
         inOutFile.open("shop_list.dat", ios::in | ios::out | ios::binary);
+    }
+
+    if (!inOutFile)
+    {
+        cerr << "File could not be opened." << endl;
+        exit(EXIT_FAILURE);
     }
 
     Choice choice;
@@ -71,9 +77,9 @@ Choice selectChoice()
 {
     cout << "Enter a choice:" << endl
          << "1  List all tools." << endl
-         << "2  UPdata recode." << endl
-         << "3  Insert recode." << endl
-         << "4  Delete recode." << endl
+         << "2  UPdata record." << endl
+         << "3  Insert record." << endl
+         << "4  Delete record." << endl
          << "5  End program." << endl
          << "? ";
     int choice{0};
@@ -102,6 +108,7 @@ void initial(fstream &file)
         cout << "Enter the tool name: ";
         getchar();
         getline(cin, name);
+
         cout << "Enter quantity and price: ";
         cin >> quantity >> price;
 
@@ -110,7 +117,8 @@ void initial(fstream &file)
         file.write(
             reinterpret_cast<const char *>(&data), sizeof(Tool));
 
-        cout << "Enter the part number (0 - 99, -1 to the end input): ";
+        cout
+            << "Enter the part number (0 - 99, -1 to the end input): ";
         cin >> place;
     }
 }
@@ -118,19 +126,17 @@ void initial(fstream &file)
 void listAllData(fstream &file)
 {
     printTitle();
-    int i{0};
+    file.seekg(0);
+
     while (!file.eof())
     {
         Tool data;
-        file.seekg(i * sizeof(Tool));
         file.read(
             reinterpret_cast<char *>(&data), sizeof(Tool));
         if (data.getName() != "")
         {
             print(data);
         }
-
-        i += 1;
     }
 }
 
@@ -140,7 +146,7 @@ void printTitle()
          << showpoint << "Cost" << endl;
 }
 
-void print(Tool &data)
+void print(const Tool &data)
 {
 
     cout << left << setw(11) << data.getRecode() << setw(30) << data.getName() << setw(13) << data.getQuantity() << fixed << setprecision(2)
@@ -149,6 +155,7 @@ void print(Tool &data)
 
 void updataData(fstream &file)
 {
+    listAllData(file);//下面要 clear
     int place{0}, quantity{0};
     float price{0};
     cout << "Select one tool to update :";
@@ -157,14 +164,18 @@ void updataData(fstream &file)
     cin >> quantity >> price;
 
     Tool dataInFile;
+    file.clear();//這裡
     file.seekg(place * sizeof(Tool));
     file.read(
         reinterpret_cast<char *>(&dataInFile), sizeof(Tool));
+    print(dataInFile);
 
-    Tool updateData{place, dataInFile.getName(), quantity, price};
+    string name = dataInFile.getName();
+    Tool updateData{place, name, quantity, price};
     file.seekp(place * sizeof(Tool));
     file.write(
         reinterpret_cast<const char *>(&updateData), sizeof(Tool));
+    print(updateData);
 }
 
 void insertData(fstream &file)
@@ -189,7 +200,7 @@ void insertData(fstream &file)
 void deleteData(fstream &file)
 {
     int place{0};
-    cout << "Input place to delete";
+    cout << "Input prat to delete";
     cin >> place;
     Tool data{place, "", 0, 0};
     file.seekp(place * sizeof(Tool));
